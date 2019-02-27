@@ -10,7 +10,7 @@
 name=QCopycanvas
 qgisMinimumVersion=3.0
 description=This tool can be used to copy the map canvas and place it in the clipboard.
-version=0.1
+version=0.2
 author=Marios S. Kyriakou, KIOS Research and Innovation Center of Excellence (KIOS CoE)
 email=mariosmsk@gmail.com
 
@@ -28,7 +28,7 @@ repository=https://github.com/Mariosmsk/QCopycanvas/
 # Tags are comma separated with spaces allowed
 tags=python
 
-homepage=https://mariosmsk.wordpress.com/
+homepage=https://mariosmsk.com/2019/02/13/qcopycanvas-qgis/
 category=Plugins
 icon=icon.png
 # experimental flag
