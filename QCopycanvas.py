@@ -22,8 +22,9 @@
  ***************************************************************************/
 """
 from PyQt5.QtCore import (QSettings, QTranslator, qVersion, QCoreApplication, Qt)
-from PyQt5.QtGui import (QIcon, QImage, QFont, QKeySequence)
-from PyQt5.QtWidgets import (QAction, QApplication, QMessageBox, QWidget)
+from PyQt5.QtGui import (QIcon, QImage, QKeySequence)
+from PyQt5.QtWidgets import (QAction, QApplication, QWidget)
+from qgis.core import Qgis
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -185,25 +186,11 @@ class QCopycanvas:
                 action)
             self.iface.removeToolBarIcon(action)
 
-    def showMessage(self, title, msg, button):
-        msgBox = QMessageBox()
-        msgBox.setIcon(QMessageBox.Information)
-        msgBox.setWindowTitle(title)
-        msgBox.setText(msg)
-        msgBox.setStandardButtons(QMessageBox.Ok)
-        font = QFont()
-        font.setPointSize(9)
-        msgBox.setFont(font)
-        msgBox.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowCloseButtonHint)
-        buttonY = msgBox.button(QMessageBox.Ok)
-        buttonY.setText(button)
-        buttonY.setFont(font)
-        msgBox.exec_()
-
     def run(self):
         """Run method that performs all the real work"""
 
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         QApplication.clipboard().setImage(QImage(QWidget.grab(self.iface.mapCanvas())))
-        self.showMessage(title='QCopycanvas', msg='Copied map canvas successfully.', button='OK')
+        #self.showMessage(title='QCopycanvas', msg='Copied map canvas successfully.', button='OK')
+        self.iface.messageBar().pushMessage('QCopycanvas','Copied map canvas to clipboard', level=Qgis.Success,)
