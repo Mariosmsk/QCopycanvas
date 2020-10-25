@@ -161,9 +161,9 @@ class QCopycanvas:
         if shortcut is not None:
             action.setShortcut(QKeySequence(shortcut))
 
-        if add_to_toolbar:
+        #if add_to_toolbar:
             # Adds plugin icon to Plugins toolbar
-            self.iface.addToolBarIcon(action)
+        #    self.iface.addToolBarIcon(action)
 
         if add_to_menu:
             self.iface.addPluginToMenu(
@@ -248,7 +248,12 @@ class QCopycanvas:
         font = ImageFont.truetype("arial.ttf", 16)
         d.text(((width/2.5) + len(project.title()), 10), project.title(), fill='black', font=font)
 
-        sq_fit_size = width - legendWidth
+        if abs(height - width) < 150:
+            sq_fit_size = legendWidth
+            height = legendHeight
+        else:
+            sq_fit_size = width - legendWidth
+
         if width > sq_fit_size and height > sq_fit_size:
             if width > height:
                 height = int((sq_fit_size / width) * height)
