@@ -23,14 +23,18 @@
 """
 from PyQt5.QtCore import (QSettings, QTranslator, qVersion, QCoreApplication, Qt)
 from PyQt5.QtGui import (QIcon, QImage, QFont, QKeySequence)
-from PyQt5.QtWidgets import (QAction, QApplication, QWidget)
-from qgis.core import Qgis
+from PyQt5.QtWidgets import (QAction, QApplication, QWidget, QToolButton, QMenu)
+from qgis.core import Qgis, QgsProject, QgsLayerTreeModel
+from qgis.gui import *
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
 import os.path
-
+try:
+    from PIL import Image, ImageDraw, ImageFont
+except:
+    pass
 
 class QCopycanvas:
     """QGIS Plugin Implementation."""
@@ -64,6 +68,13 @@ class QCopycanvas:
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&QCopycanvas')
+
+        self.toolbar = self.iface.addToolBar(u'QCopycanvas')
+        self.toolbar.setObjectName(u'QCopycanvas')
+        self.toolButton = QToolButton()
+        self.toolButton.setMenu(QMenu())
+        self.toolButton.setPopupMode(QToolButton.MenuButtonPopup)
+        self.toolbar.addWidget(self.toolButton)
 
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
@@ -167,9 +178,9 @@ class QCopycanvas:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = ':/plugins/QCopycanvas/icon.png'
-        self.add_action(
+        self.mainButton = self.add_action(
             icon_path,
-            text=self.tr(u'Copy map canvas'),
+            text=self.tr(u'Copy Map Canvas'),
             shortcut="Ctrl+Space",
             callback=self.run,
             parent=self.iface.mainWindow())
@@ -177,6 +188,14 @@ class QCopycanvas:
         # will be set False in run()
         self.first_start = True
 
+        self.with_legend_btn = QAction(QIcon(''), "Copy Map Canvas with Legend", self.iface.mainWindow())
+        self.with_legend_btn.setText("Copy Map Canvas with Legend")
+        self.with_legend_btn.triggered.connect(self.with_legend_btn_run)
+
+        menu = self.toolButton.menu()
+        menu.addAction(self.mainButton)
+        menu.addAction(self.with_legend_btn)
+        self.toolButton.setDefaultAction(self.mainButton)
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -186,10 +205,71 @@ class QCopycanvas:
                 action)
             self.iface.removeToolBarIcon(action)
 
+    def with_legend_btn_run(self):
+
+        project = QgsProject.instance()
+        tmpmaplayers = project.mapLayers().values()
+        layers_names_length = [len(layer.name()) for layer in tmpmaplayers]
+        maxlen = max(layers_names_length)
+        root = project.layerTreeRoot()
+        model = QgsLayerTreeModel(root)
+
+        lenlen = model.rowCount()
+        view = QgsLayerTreeView()
+
+        view.setModel(model)
+        if lenlen > 1:
+            view.setFixedHeight(lenlen * 20)
+            view.setFixedWidth(maxlen * 15)
+        else:
+            view.setFixedHeight(lenlen * 30)
+            view.setFixedWidth(maxlen * 20)
+        if maxlen > 15:
+            view.setFixedWidth((maxlen-15)*20)
+        if maxlen > 20:
+            view.setFixedWidth((maxlen-20)*20)
+
+        legendIm = QImage(QWidget.grab(view))
+        legendpath = self.plugin_dir + "\\legend.png"
+        legendIm.save(legendpath)
+
+        legendIm = Image.open(legendpath)
+        #legendIm = legendIm.imageData()
+        legendWidth, legendHeight = legendIm.size
+
+        main_image = QImage(QWidget.grab(self.iface.mapCanvas()))
+        mainpath = self.plugin_dir + "\\main.png"
+        main_image.save(mainpath)
+
+        main_image = Image.open(mainpath).convert("RGBA")
+        width, height = main_image.size
+
+        d = ImageDraw.Draw(main_image)
+        font = ImageFont.truetype("arial.ttf", 16)
+        d.text(((width/2.5) + len(project.title()), 10), project.title(), fill='black', font=font)
+
+        sq_fit_size = width - legendWidth
+        if width > sq_fit_size and height > sq_fit_size:
+            if width > height:
+                height = int((sq_fit_size / width) * height)
+                width = sq_fit_size
+            else:
+                width = int((sq_fit_size / height) * width)
+                height = sq_fit_size
+                main_image = main_image.resize((width, height))
+
+        main_image.paste(legendIm, (width - legendWidth, height - legendHeight))
+        finalpath = self.plugin_dir + "\\main.png"
+        main_image.save(finalpath)
+
+        QApplication.clipboard().setImage(QImage(finalpath))
+        self.iface.messageBar().pushMessage('QCopycanvas', 'Copied map canvas to clipboard with legend', level=Qgis.Success,
+                                            duration=2)
     def run(self):
         """Run method that performs all the real work"""
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
+
         QApplication.clipboard().setImage(QImage(QWidget.grab(self.iface.mapCanvas())))
         self.iface.messageBar().pushMessage('QCopycanvas', 'Copied map canvas to clipboard', level=Qgis.Success,
                                             duration=2)
