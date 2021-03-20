@@ -24,7 +24,7 @@
 from PyQt5.QtCore import (QSettings, QTranslator, qVersion, QCoreApplication, Qt)
 from PyQt5.QtGui import (QIcon, QImage, QFont, QKeySequence)
 from PyQt5.QtWidgets import (QAction, QApplication, QWidget, QToolButton, QMenu)
-from qgis.core import Qgis, QgsProject, QgsLayerTreeModel
+from qgis.core import Qgis, QgsProject, QgsLayerTreeModel, QgsLayerTreeLayer, QgsLayerTreeGroup, QgsLayerTree
 from qgis.gui import *
 
 # Initialize Qt resources from file resources.py
@@ -205,29 +205,42 @@ class QCopycanvas:
                 action)
             self.iface.removeToolBarIcon(action)
 
+    def get_group_layers(self, group):
+        for child in group.children():
+            if isinstance(child, QgsLayerTreeGroup):
+                self.get_group_layers(child)
+            elif child.isVisible():
+                self.checked_layers.append(child.name())
+
     def with_legend_btn_run(self):
 
         project = QgsProject.instance()
-        tmpmaplayers = project.mapLayers().values()
-        layers_names_length = [len(layer.name()) for layer in tmpmaplayers]
-        maxlen = max(layers_names_length)
+        self.checked_layers = []
         root = project.layerTreeRoot()
-        model = QgsLayerTreeModel(root)
+        for child in root.children():
+            if child.isVisible() and isinstance(child, QgsLayerTreeLayer):
+                self.checked_layers.append(child.name())
 
+            if child.isVisible() and isinstance(child, QgsLayerTreeGroup):
+                self.get_group_layers(child)
+
+        layersToAdd = [layer for layer in project.mapLayers().values() if
+                       layer.name() in sorted(self.checked_layers, reverse=False)]
+        layers_names_length = [len(layer.name()) for layer in project.mapLayers().values() if
+                       layer.name() in sorted(self.checked_layers, reverse=False)]
+        maxlen = max(layers_names_length)
+
+        root = QgsLayerTree()
+        for layer in layersToAdd:
+           root.addLayer(layer)
+
+        model = QgsLayerTreeModel(root)
         lenlen = model.rowCount()
         view = QgsLayerTreeView()
-
         view.setModel(model)
-        if lenlen > 1:
-            view.setFixedHeight(lenlen * 20)
-            view.setFixedWidth(maxlen * 15)
-        else:
-            view.setFixedHeight(lenlen * 30)
-            view.setFixedWidth(maxlen * 20)
-        if maxlen > 15:
-            view.setFixedWidth((maxlen-15)*20)
-        if maxlen > 20:
-            view.setFixedWidth((maxlen-20)*20)
+
+        view.setFixedHeight(lenlen * 20)
+        view.setFixedWidth(maxlen * 10)
 
         legendIm = QImage(QWidget.grab(view))
         legendpath = self.plugin_dir + "\\legend.png"
