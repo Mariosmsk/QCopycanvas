@@ -23,14 +23,14 @@ repository=https://github.com/Mariosmsk/QCopycanvas/
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-# changelog=2021-03-20  QCopycanvas 0.5:
+changelog=2021-03-20  QCopycanvas 0.5:
 			Show checked layers (Thanks for the suggestion code Carmine Massarelli and @jvdkwast for the issue)and show group checked layers
 			2020-04-20  QCopycanvas 0.4:
 			Add option to copy canvas with legend
 			Add project title
-            2020-04-20  QCopycanvas 0.3:
+			2020-04-20  QCopycanvas 0.3:
 			Using messagebar instead of messagebox. 
-            Thanks for the suggestion @raymondnijssen, @AlisterH.
+			Thanks for the suggestion @raymondnijssen, @AlisterH.
 
 # Tags are comma separated with spaces allowed
 tags=python
