@@ -265,7 +265,7 @@ class QCopycanvas:
             sq_fit_size = legendWidth
             height = legendHeight
         else:
-            sq_fit_size = width - legendWidth
+            sq_fit_size = width
 
         if width > sq_fit_size and height > sq_fit_size:
             if width > height:
@@ -276,7 +276,7 @@ class QCopycanvas:
                 height = sq_fit_size
                 main_image = main_image.resize((width, height))
 
-        main_image.paste(legendIm, (width - legendWidth, height - legendHeight))
+        main_image.paste(legendIm, (max(width - legendWidth, 0), height - legendHeight))
         finalpath = self.plugin_dir + "\\main.png"
         main_image.save(finalpath)
 
