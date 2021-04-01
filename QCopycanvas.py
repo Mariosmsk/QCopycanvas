@@ -188,9 +188,13 @@ class QCopycanvas:
         # will be set False in run()
         self.first_start = True
 
-        self.with_legend_btn = QAction(QIcon(''), "Copy Map Canvas with Legend", self.iface.mainWindow())
-        self.with_legend_btn.setText("Copy Map Canvas with Legend")
-        self.with_legend_btn.triggered.connect(self.with_legend_btn_run)
+        self.with_legend_btn = self.add_action(icon_path=icon_path,
+            text=self.tr(u'Copy Map Canvas with Legend'),
+            add_to_menu=True,
+            add_to_toolbar=False,
+            shortcut="Ctrl+W",
+            callback=self.with_legend_btn_run,
+            parent=self.iface.mainWindow())
 
         menu = self.toolButton.menu()
         menu.addAction(self.mainButton)

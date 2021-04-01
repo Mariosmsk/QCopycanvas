@@ -10,11 +10,11 @@
 name=QCopycanvas
 qgisMinimumVersion=3.0
 description=This tool can be used to copy the map canvas and place it in the clipboard.
-version=0.5
+version=0.6
 author=Marios S. Kyriakou, KIOS Research and Innovation Center of Excellence (KIOS CoE)
 email=mariosmsk@gmail.com
 
-about=This tool can be used to copy the map canvas and place it in the clipboard (Using button or shortcut `Ctrl-Space`). This plugin is based on the plugin "Copy Canvas to Clipboard" in QGIS 2 by Bo Victor Thomsen - Municipality of Frederikssund.
+about=This tool can be used to copy the map canvas and place it in the clipboard. Using button or shortcut `Ctrl-Space`. Also, you can copy canvas with legend using button or shortcut `Ctrl-W`. This plugin is based on the plugin "Copy Canvas to Clipboard" in QGIS 2 by Bo Victor Thomsen - Municipality of Frederikssund.
 
 tracker=https://github.com/Mariosmsk/QCopycanvas/issues/
 repository=https://github.com/Mariosmsk/QCopycanvas/
@@ -23,7 +23,10 @@ repository=https://github.com/Mariosmsk/QCopycanvas/
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=2021-03-20  QCopycanvas 0.5:
+changelog=2021-04-01  QCopycanvas 0.6:
+			Add shortcut Ctrl-W to copy canvas with legend
+			Trunk the legend in a correct way if there is a layer name too long (Thank you Carmine Massarelli @carminemassarelli) 
+			2021-03-20  QCopycanvas 0.5:
 			Show checked layers (Thanks for the suggestion code Carmine Massarelli and @jvdkwast for the issue)and show group checked layers
 			2020-04-20  QCopycanvas 0.4:
 			Add option to copy canvas with legend
