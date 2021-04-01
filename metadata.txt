@@ -36,7 +36,7 @@ changelog=2021-04-01  QCopycanvas 0.6:
 			Thanks for the suggestion @raymondnijssen, @AlisterH.
 
 # Tags are comma separated with spaces allowed
-tags=python
+tags=copy, canvas, clipboard, legend, print
 
 homepage=https://mariosmsk.com/2019/02/13/qcopycanvas-qgis/
 category=Plugins
