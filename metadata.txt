@@ -10,7 +10,7 @@
 name=QCopycanvas
 qgisMinimumVersion=3.0
 description=This tool can be used to copy the map canvas and place it in the clipboard.
-version=0.6
+version=0.7
 author=Marios S. Kyriakou, KIOS Research and Innovation Center of Excellence (KIOS CoE)
 email=mariosmsk@gmail.com
 
@@ -23,7 +23,9 @@ repository=https://github.com/Mariosmsk/QCopycanvas/
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=2021-04-01  QCopycanvas 0.6:
+changelog=2023-03-10  QCopycanvas 0.7:
+			Fix dependencies.
+		    2021-04-01  QCopycanvas 0.6:
 			Add shortcut Ctrl-W to copy canvas with legend
 			Trunk the legend in a correct way if there is a layer name too long (Thank you Carmine Massarelli @carminemassarelli) 
 			2021-03-20  QCopycanvas 0.5:

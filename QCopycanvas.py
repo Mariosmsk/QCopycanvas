@@ -35,6 +35,12 @@ try:
     from PIL import Image, ImageDraw, ImageFont
 except:
     pass
+from .install_packages.check_dependencies import check
+
+try:
+    check()
+finally:
+    from PIL import Image, ImageDraw, ImageFont
 
 class QCopycanvas:
     """QGIS Plugin Implementation."""
@@ -232,6 +238,9 @@ class QCopycanvas:
                        layer.name() in sorted(self.checked_layers, reverse=False)]
         layers_names_length = [len(layer.name()) for layer in project.mapLayers().values() if
                        layer.name() in sorted(self.checked_layers, reverse=False)]
+        if not bool(QgsProject.instance().mapLayers()):
+            return
+
         maxlen = max(layers_names_length)
 
         root = QgsLayerTree()
