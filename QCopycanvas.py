@@ -21,7 +21,10 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt5.QtCore import (QSettings, QTranslator, qVersion, QCoreApplication, Qt)
+# 2025-07-15 This release brings many simplifications to make the creation of maps with legends more uniform.
+# 2025-07-15 It is recommended to use this plugin with a legend of 2-3 elements maximum
+
+from PyQt5.QtCore import (QSettings, QTranslator, qVersion, QCoreApplication, Qt, QRect)
 from PyQt5.QtGui import (QIcon, QImage, QFont, QKeySequence)
 from PyQt5.QtWidgets import (QAction, QApplication, QWidget, QToolButton, QMenu)
 from qgis.core import Qgis, QgsProject, QgsLayerTreeModel, QgsLayerTreeLayer, QgsLayerTreeGroup, QgsLayerTree
@@ -239,15 +242,27 @@ class QCopycanvas:
         view = QgsLayerTreeView()
         view.setModel(model)
 
-        view.setFixedHeight(lenlen * 20)
-        view.setFixedWidth(maxlen * 10)
+        # 2025-07-15 Made some changes to make the legend more visible
+        #view.setFixedHeight(lenlen * 20)
+        #view.setFixedWidth(maxlen * 10)
+        view.setFixedHeight(lenlen * 200 - lenlen * 50)
+        view.setFixedWidth(300)
 
         legendIm = QImage(QWidget.grab(view))
+        
+        #Get the original legend image size to clip after
+        width_legend = legendIm.width()
+        height_legend = legendIm.height()
+
+        # Crop the image 10 pixels to the right and bottom to remove any scroll bars
+        # The new dimensions will be: original_width - 15 and original_height - 15
+        # The starting point of the clipping is (0, 0)
+        legendIm = legendIm.copy(QRect(0, 0, width_legend - 15, height_legend - 15))
+
         legendpath = self.plugin_dir + "\\legend.png"
         legendIm.save(legendpath)
 
-        legendIm = Image.open(legendpath)
-        #legendIm = legendIm.imageData()
+        legendIm = Image.open(legendpath).convert("RGBA")
         legendWidth, legendHeight = legendIm.size
 
         main_image = QImage(QWidget.grab(self.iface.mapCanvas()))
@@ -257,28 +272,24 @@ class QCopycanvas:
         main_image = Image.open(mainpath).convert("RGBA")
         width, height = main_image.size
 
-        d = ImageDraw.Draw(main_image)
-        font = ImageFont.truetype("arial.ttf", 16)
-        d.text(((width/2.5) + len(project.title()), 10), project.title(), fill='black', font=font)
-
-        if abs(height - width) < 150:
-            sq_fit_size = legendWidth
-            height = legendHeight
+        # 2025-07-15 the new part that simplifies the creation of the map with the legend
+        if height >= legendHeight: # case when the height of the map is greater than the height of the legend
+            new_height = height # the map height is sufficient to display the legend correctly
+            coordinate = 0 # coordinate to paste the main image
+            coordinate_2 = abs(height - legendHeight) # coordinate to paste the legend
         else:
-            sq_fit_size = width
+            new_height = legendHeight
+            coordinate = int(round((legendHeight - height)/2))
+            coordinate_2 = 0       
 
-        if width > sq_fit_size and height > sq_fit_size:
-            if width > height:
-                height = int((sq_fit_size / width) * height)
-                width = sq_fit_size
-            else:
-                width = int((sq_fit_size / height) * width)
-                height = sq_fit_size
-                main_image = main_image.resize((width, height))
+        # 2025-07-15 Create a new image with the updated dimensions and white border color
+        main_image_output =  Image.new("RGBA", (width + legendWidth, new_height), "white")
+        # 2025-07-15 Paste the original image onto the new image, aligning it as appropriate
+        main_image_output.paste(main_image, (0, coordinate))
+        main_image_output.paste(legendIm, (width, coordinate_2))
 
-        main_image.paste(legendIm, (max(width - legendWidth, 0), height - legendHeight))
         finalpath = self.plugin_dir + "\\main.png"
-        main_image.save(finalpath)
+        main_image_output.save(finalpath)
 
         QApplication.clipboard().setImage(QImage(finalpath))
         self.iface.messageBar().pushMessage('QCopycanvas', 'Copied map canvas to clipboard with legend', level=Qgis.Success,
