@@ -24,9 +24,9 @@
 # 2025-07-15 This release brings many simplifications to make the creation of maps with legends more uniform.
 # 2025-07-15 It is recommended to use this plugin with a legend of 2-3 elements maximum
 
-from PyQt5.QtCore import (QSettings, QTranslator, qVersion, QCoreApplication, Qt, QRect)
-from PyQt5.QtGui import (QIcon, QImage, QFont, QKeySequence)
-from PyQt5.QtWidgets import (QAction, QApplication, QWidget, QToolButton, QMenu)
+from PyQt6.QtCore import (QSettings, QTranslator, qVersion, QCoreApplication, Qt, QRect)
+from PyQt6.QtGui import (QIcon, QImage, QFont, QKeySequence, QAction)
+from PyQt6.QtWidgets import (QApplication, QToolButton, QMenu)
 from qgis.core import Qgis, QgsProject, QgsLayerTreeModel, QgsLayerTreeLayer, QgsLayerTreeGroup, QgsLayerTree
 from qgis.gui import *
 
@@ -82,7 +82,7 @@ class QCopycanvas:
         self.toolbar.setObjectName(u'QCopycanvas')
         self.toolButton = QToolButton()
         self.toolButton.setMenu(QMenu())
-        self.toolButton.setPopupMode(QToolButton.MenuButtonPopup)
+        self.toolButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
         self.toolbar.addWidget(self.toolButton)
 
         # Check if plugin was started the first time in current QGIS session
@@ -261,7 +261,7 @@ class QCopycanvas:
         view.setFixedHeight(lenlen * 200 - lenlen * 50)
         view.setFixedWidth(300)
 
-        legendIm = QImage(QWidget.grab(view))
+        legendIm = view.grab().toImage()
         
         #Get the original legend image size to clip after
         width_legend = legendIm.width()
@@ -278,7 +278,7 @@ class QCopycanvas:
         legendIm = Image.open(legendpath).convert("RGBA")
         legendWidth, legendHeight = legendIm.size
 
-        main_image = QImage(QWidget.grab(self.iface.mapCanvas()))
+        main_image = self.iface.mapCanvas().grab().toImage()
         mainpath = self.plugin_dir + "\\main.png"
         main_image.save(mainpath)
 
@@ -312,6 +312,6 @@ class QCopycanvas:
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
 
-        QApplication.clipboard().setImage(QImage(QWidget.grab(self.iface.mapCanvas())))
+        QApplication.clipboard().setImage(self.iface.mapCanvas().grab().toImage())
         self.iface.messageBar().pushMessage('QCopycanvas', 'Copied map canvas to clipboard', level=Qgis.Success,
                                             duration=2)

@@ -21,14 +21,15 @@ def check():
         message += "\n\nWould you like to install them now?"
 
         reply = QMessageBox.question(None, 'Missing Dependencies', message,
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                     QMessageBox.StandardButton.No)
 
-        if reply == QMessageBox.No:
+        if reply == QMessageBox.StandardButton.No:
             return
 
         try:
             import subprocess
-            subprocess.check_call(['python3', '-m', 'pip', 'install', '--upgrade', '--force-reinstall',
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', '--force-reinstall',
                                    '--no-cache-dir', 'pillow'])
         finally:
             QMessageBox.information(None, 'Install successfully.', 'Please restart QGIS to use QCopycanvas plugin.')
