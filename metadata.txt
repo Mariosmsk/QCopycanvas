@@ -45,7 +45,7 @@ changelog=2026-07-01  QCopycanvas 0.9:
 # Tags are comma separated with spaces allowed
 tags=copy, canvas, clipboard, legend, print
 
-homepage=https://mariosmsk.com/2019/02/13/qcopycanvas-qgis/
+homepage=https://mariosmsk.wordpress.com/2019/02/13/qcopycanvas-qgis/
 category=Plugins
 icon=icon.png
 # experimental flag
